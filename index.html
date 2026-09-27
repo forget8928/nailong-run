@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#8ddce2">
+  <meta name="description" content="奶龙快跑：三车道无尽跑酷，收集金币，跳跃和滑铲躲避障碍。">
+  <title>奶龙快跑 · 阳光跑道</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%232dadd0'/%3E%3Ccircle cx='32' cy='30' r='23' fill='%23ffd74d'/%3E%3Cellipse cx='23' cy='29' rx='5' ry='7' fill='white'/%3E%3Cellipse cx='41' cy='29' rx='5' ry='7' fill='white'/%3E%3Ccircle cx='23' cy='30' r='3' fill='%234ba341'/%3E%3Ccircle cx='41' cy='30' r='3' fill='%234ba341'/%3E%3Cpath d='M28 41q4 6 8 0' fill='none' stroke='%23a35d15' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <main class="game-shell" id="gameShell" aria-label="奶龙快跑游戏">
+    <canvas id="gameCanvas" aria-label="三车道跑酷跑道"></canvas>
+    <div class="screen-gloss" aria-hidden="true"></div>
+
+    <header class="game-hud" id="gameHud" hidden>
+      <button class="hud-button" id="pauseButton" type="button" aria-label="暂停游戏">Ⅱ</button>
+      <div class="distance-readout"><small>奔跑距离</small><strong><span id="distanceValue">0</span><em>m</em></strong></div>
+      <div class="coin-readout"><span class="coin-icon">★</span><strong id="coinValue">0</strong></div>
+    </header>
+    <div class="power-readout" id="powerReadout" hidden></div>
+    <div class="chase-readout" id="chaseReadout" hidden>追兵靠近！<b id="chaseSeconds">7</b>s</div>
+
+    <section class="menu-screen" id="menuScreen" aria-label="游戏开始菜单">
+      <div class="menu-topline">
+        <span class="edition">阳光跑道 · NAILOONG RUN</span>
+        <button class="sound-button" id="soundButton" type="button" aria-label="关闭声音">♫</button>
+      </div>
+      <div class="title-lockup">
+        <div class="title-spark spark-one">✦</div><div class="title-spark spark-two">✦</div>
+        <h1><span>奶龙</span><span>快跑</span></h1>
+        <p>阳光、金币，还有下一条跑道</p>
+      </div>
+      <img class="menu-character" src="assets/nailong-front.webp" alt="正在奔跑的奶龙">
+      <div class="menu-bottom">
+        <div class="menu-records"><span><small>最高纪录</small><b id="bestValue">0 m</b></span><span><small>累计金币</small><b><i class="mini-coin">★</i> <span id="totalCoinValue">0</span></b></span></div>
+        <button class="map-selector" id="openMaps" type="button"><span class="map-emoji" id="mapEmoji">🏜️</span><span><small>当前地图</small><b id="mapName">埃及 · 金沙秘境</b></span><strong>选择地图 ›</strong></button>
+        <div class="difficulty" role="group" aria-label="选择游戏难度"><button type="button" data-difficulty="easy">简单</button><button type="button" data-difficulty="normal" class="selected" aria-pressed="true">普通</button><button type="button" data-difficulty="hard">困难</button></div>
+        <button class="play-button" id="startButton" type="button"><span>点击开跑</span><b>▶</b></button>
+        <p class="menu-hint">← → 换道 · ↑ / 空格 跳跃 · ↓ 滑铲</p>
+      </div>
+    </section>
+
+    <section class="modal-screen" id="mapScreen" hidden aria-label="地图选择">
+      <div class="modal-card map-card"><button class="close-button" id="closeMaps" type="button" aria-label="关闭地图选择">×</button><span class="eyebrow">旅程地图</span><h2>想去哪里开跑？</h2><p>选一张喜欢的地图，整局都在这里奔跑。</p><div class="map-grid" id="mapGrid"></div><button class="secondary-button" id="confirmMap" type="button">选好啦</button></div>
+    </section>
+
+    <section class="modal-screen" id="pauseScreen" hidden aria-label="游戏暂停">
+      <div class="modal-card"><span class="eyebrow">休息一下</span><h2>奶龙在等你</h2><p>左右换道，向上跳跃，向下滑铲。P 或 Esc 也能继续。</p><button class="primary-button" id="resumeButton" type="button">继续奔跑 ▶</button><button class="text-button" id="pauseHomeButton" type="button">返回主菜单</button></div>
+    </section>
+
+    <section class="modal-screen" id="endScreen" hidden aria-label="本局结果">
+      <div class="modal-card result-card"><span class="eyebrow">本次旅程</span><h2 id="resultTitle">跑得真棒！</h2><img src="assets/nailong-front.webp" alt="奶龙" class="result-character"><div class="result-stats"><span><small>奔跑距离</small><b id="resultDistance">0 m</b></span><span><small>获得金币</small><b id="resultCoins">0</b></span></div><p id="resultBest">最高纪录 0 m</p><button class="primary-button" id="restartButton" type="button">再跑一次 ▶</button><button class="text-button" id="homeButton" type="button">返回主菜单</button></div>
+    </section>
+
+    <nav class="touch-controls" id="touchControls" aria-label="游戏操作" hidden><button type="button" data-action="left" aria-label="向左换道">←</button><button type="button" data-action="jump" aria-label="跳跃">↑</button><button type="button" data-action="slide" aria-label="滑铲">↓</button><button type="button" data-action="right" aria-label="向右换道">→</button></nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+  <div class="desktop-caption" aria-hidden="true"><strong>奶龙快跑</strong><span>← → 换道　↑ 跳跃　↓ 滑铲　P 暂停</span></div>
+</body>
+</html>
